@@ -1,0 +1,20 @@
+{
+  "name": "luapeck",
+  "version": "3.1.0",
+  "description": "Packaging multiple lua files into one file",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node bin/luapeck -o test/packed.lua build test/test.lua"
+  },
+  "bin": {
+    "luapeck": "bin/luapeck"
+  },
+  "author": "Shichiha",
+  "dependencies": {
+    "commander": "^2.13.0",
+    "fs-extra": "^5.0.0",
+    "listr": "^0.13.0",
+    "luamin": "^1.0.4",
+    "md5-hex": "^2.0.0"
+  }
+}
