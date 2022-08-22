@@ -55,16 +55,15 @@ export function initProject (args) {
 }
 
 function pack (args) {
-  let pathArg = parsePath(args) 
-    if (!fs.lstatSync(pathArg).isDirectory()) {
-        return
-    }
-  if (!fs.existsSync(path.join(pathArg, 'luapeck.config.json'))) {
+  let pathArg = parsePath(args)
+  let isFile = fs.lstatSync(pathArg).isFile()
+  if (!isFile &&!fs.existsSync(path.join(pathArg, 'luapeck.config.json'))) {
     console.log(chalk.red('No config file found at ' + pathArg))
     return // TODO: create config file
   }
   console.log(chalk.green('Found config file! Packing...'))
-  build('test/test.lua')
+  let built = build('./test/test.lua')
+    console.log(chalk.green('Packing finished!'))
 }
 
 export default pack

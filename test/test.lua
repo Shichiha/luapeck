@@ -1,6 +1,2 @@
-print("HELLO")
-print("HELLO")
-print("require")
-print("HELLO")
-print("HELLO")
-print("HELLO")
+local math = require("mathematics.lua")
+math.add(1,2)
