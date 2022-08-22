@@ -1,17 +1,7 @@
 import path from 'path'
 import fs from 'fs'
-import * as url from 'url'
-const __filename = url.fileURLToPath(import.meta.url)
-const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 import build from './build.js'
-function loadTemplate (moduleName, data) {
-  return `proxy_package.packages['${moduleName}'] = function()\n\t${data}\nend\n`
-}
-const requireRegexp = /require\(?(?:"|')([^"']+)(?:"|')\)?/g
-
-function initFile (relativePath) {
-  const absolutePath = path.join(process.cwd(), relativePath)
-}
+const log = (color, message) => console.log(chalk[color](message))
 
 import inquirer from 'inquirer'
 import chalk from 'chalk'
@@ -22,7 +12,7 @@ function parsePath (args) {
   if (cArgs && cArgs.indexOf('-p') > -1)
     if (fs.existsSync(args[3])) execPath = args[3]
     else {
-      console.log(chalk.red('Invalid Path Argument.'))
+      log('red', 'Invalid Path Argument.')
       process.exit(1)
     }
   return execPath
@@ -61,11 +51,11 @@ export function initProject (args) {
 function peck (args, isFile, output) {
   let built = build(args)
   let toOutput = output == null ? 'packed.lua' : output
-  console.log(chalk.green('Packing finished!'))
+  log('green', 'Packing finished!')
   let filePath = path.resolve(args, isFile ? "../" : "")
-  console.log(chalk.green('Output file: ' + filePath + '\\' + toOutput))
+  log('green', 'Output file: ' + filePath + '\\' + toOutput)
   fs.writeFileSync(path.join(filePath, toOutput), built)
-  console.log(chalk.green('Packed file saved!'))
+  log('green', 'Packed file saved!')
 }
 function pack (args) {
   let pathArg = parsePath(args)
@@ -77,19 +67,20 @@ function pack (args) {
   }
   let hasConfig = fs.existsSync(path.join(pathArg, 'luapeck.config.json'))
   if (!hasConfig && !isFile) {
-    console.log(chalk.red('No config file found at ' + pathArg))
+    log('red', 'No config file found at ' + pathArg)
     return // TODO: create config file}
   }
-  console.log(chalk.green('Found config file! Packing...'))
+  log('green', 'Found config file! Packing...')
   let config = JSON.parse(fs.readFileSync(path.join(pathArg, 'luapeck.config.json'), 'utf8'))
   
   let mainFile = config.mainFile
   let output = config.output
-  if (!fs.existsSync(mainFile)) {
-    console.log(chalk.red('Main file not found'));
+  let mainFilePath = path.resolve(pathArg, mainFile)
+  if (!fs.existsSync(mainFilePath)) {
+    log('red', 'Main file not found')
     return
   }
-  peck(mainFile, true, output)
+  peck(mainFilePath, true, output)
 }
 
 export default pack
