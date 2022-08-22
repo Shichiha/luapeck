@@ -17,12 +17,12 @@ function build (mainFile) {
   var packages = new Map()
   function parseFiles () {
     if (!mainFileData.match(requireRegexp)) {
-      console.log(chalk.red('No require found in main file'))
+      console.log(chalk.yellow('No require found in main file... returning main file'))
       return mainFileData
     }
     function parseFileModules (module, hash) {
       let mainPath = path.dirname(module)
-      console.log(chalk.yellow('Parsing module: ' + path.relative(mainPath, module)))
+      if (process.argv.indexOf('-v') > -1) console.log(chalk.yellow('Parsing module: ' + path.relative(mainPath, module)))
       const inputData = fs.readFileSync(module, 'utf8')
       packages.set(hash, true)
       const outputData = inputData

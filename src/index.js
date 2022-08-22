@@ -1,8 +1,13 @@
 import path from 'path'
 import fs from 'fs'
 import build from './build.js'
-const log = (color, message) => console.log(chalk[color](message))
-
+function log (color, message) {
+  if (process.argv.indexOf('-v') > -1) console.log(chalk[color](message))
+}
+function logError(message) {
+  console.log(chalk.red(message))
+  process.exit(1)
+}
 import inquirer from 'inquirer'
 import chalk from 'chalk'
 
@@ -12,8 +17,7 @@ function parsePath (args) {
   if (cArgs && cArgs.indexOf('-p') > -1)
     if (fs.existsSync(args[3])) execPath = args[3]
     else {
-      log('red', 'Invalid Path Argument.')
-      process.exit(1)
+      logError('Path not found')
     }
   return execPath
 }
@@ -52,7 +56,7 @@ function peck (args, isFile, output) {
   let built = build(args)
   let toOutput = output == null ? 'packed.lua' : output
   log('green', 'Packing finished!')
-  let filePath = path.resolve(args, isFile ? "../" : "")
+  let filePath = path.resolve(args, isFile ? '../' : '')
   log('green', 'Output file: ' + filePath + '\\' + toOutput)
   fs.writeFileSync(path.join(filePath, toOutput), built)
   log('green', 'Packed file saved!')
@@ -71,13 +75,15 @@ function pack (args) {
     return // TODO: create config file}
   }
   log('green', 'Found config file! Packing...')
-  let config = JSON.parse(fs.readFileSync(path.join(pathArg, 'luapeck.config.json'), 'utf8'))
-  
+  let config = JSON.parse(
+    fs.readFileSync(path.join(pathArg, 'luapeck.config.json'), 'utf8')
+  )
+
   let mainFile = config.mainFile
   let output = config.output
   let mainFilePath = path.resolve(pathArg, mainFile)
   if (!fs.existsSync(mainFilePath)) {
-    log('red', 'Main file not found')
+    log('red', 'Main file not found, please check config file.')
     return
   }
   peck(mainFilePath, true, output)
