@@ -1,8 +1,7 @@
 {
   "name": "luapeck",
   "version": "4.1.0",
-  "description": "Packaging multiple lua files into one file",
-  "main": "src/index.js",
+  "description": "Packages multiple lua files into one file",
   "type": "module",
   "scripts": {
     "test:build": "node bin/luapeck -p test/ -v",

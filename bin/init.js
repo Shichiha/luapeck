@@ -1,16 +1,8 @@
 import path from 'path'
 import fs from 'fs'
-import build from './build.js'
-function log (color, message) {
-  if (process.argv.indexOf('-v') > -1) console.log(chalk[color](message))
-}
-function logError(message) {
-  console.log(chalk.red(message))
-  process.exit(1)
-}
+import buildModule from './build.js'
 import inquirer from 'inquirer'
-import chalk from 'chalk'
-
+import { log,logError } from './helper.js'
 function parsePath (args) {
   let cArgs = args[2]
   let execPath = path.resolve('./')
@@ -51,17 +43,26 @@ export function initProject (args) {
       )
     })
 }
-
+const removeComments = (filedata) => {
+  let lines = filedata.split('\n')
+  let newLines = []
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i]
+    if (line.startsWith('--')) 
+      continue
+    newLines.push(line)
+  }
+  return newLines.join('\n')
+}
 function peck (args, isFile, output) {
-  let built = build(args)
+  let built = buildModule(args)
   let toOutput = output == null ? 'packed.lua' : output
   log('green', 'Packing finished!')
   let filePath = path.resolve(args, isFile ? '../' : '')
-  log('green', 'Output file: ' + filePath + '\\' + toOutput)
   fs.writeFileSync(path.join(filePath, toOutput), built)
-  log('green', 'Packed file saved!')
+  log('green', `Output file Saved: ${path.resolve(filePath,toOutput)}`)
 }
-function pack (args) {
+function init (args) {
   let pathArg = parsePath(args)
   let isFile = fs.lstatSync(pathArg).isFile()
   if (isFile) {
@@ -90,4 +91,4 @@ function pack (args) {
   peck(mainFilePath, true, output)
 }
 
-export default pack
+export default init
