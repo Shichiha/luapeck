@@ -11,14 +11,12 @@ const requireRegexp = /require\(?(?:"|')([^"']+)(?:"|')\)?/g
 
 import chalk from 'chalk'
 function build (mainFile) {
-  console.log(mainFile);
   mainFile = path.resolve(mainFile)
   var mainHash = md5Hex(mainFile)
   let mainFileData = fs.readFileSync(mainFile, 'utf8')
   var packages = new Map()
   function parseFiles () {
     if (!mainFileData.match(requireRegexp)) {
-        console.log(mainFile);
       console.log(chalk.red('No require found in main file'))
       return mainFileData
     }
