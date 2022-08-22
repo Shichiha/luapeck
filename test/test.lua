@@ -1,0 +1,6 @@
+print("HELLO")
+print("HELLO")
+print("require")
+print("HELLO")
+print("HELLO")
+print("HELLO")
