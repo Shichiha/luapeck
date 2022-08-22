@@ -22,15 +22,15 @@ function require(h)
 end
 
 proxy_package.packages['c36e8531'] = function()
-        local math = require('4d912eca')
-        math.add(1,2)
+	local math = require('4d912eca')
+	math.add(1,2)
 end
 proxy_package.packages['4d912eca'] = function()
-        local lib = {}
-        function lib:add(a, b)
-            return a + b
-        end
-        return lib
-
+	local lib = {}
+	function lib:add(a, b)
+	    return a + b
+	end
+	return lib
+	
 end
 require('c36e8531')

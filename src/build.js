@@ -2,26 +2,30 @@ import fs from 'fs'
 import path from 'path'
 import md5Hex from 'md5-hex'
 const __dirname = path.resolve('./src/')
-const requireTemplate = fs.readFileSync(__dirname + '/require.lua', 'utf8')
+let fromDir = process.argv[1]
+let srcDir = path.resolve(fromDir, '../../src')
+const requireTemplate = fs.readFileSync(srcDir + '/require.lua', 'utf8')
 const loadTemplate = (hash, data) => {return `proxy_package.packages['${hash.substr(0,8)}'] = function()\n\t${data}\nend\n`
 }
 const requireRegexp = /require\(?(?:"|')([^"']+)(?:"|')\)?/g
 
 import chalk from 'chalk'
 function build (mainFile) {
+  console.log(mainFile);
   mainFile = path.resolve(mainFile)
   var mainHash = md5Hex(mainFile)
   let mainFileData = fs.readFileSync(mainFile, 'utf8')
   var packages = new Map()
   function parseFiles () {
     if (!mainFileData.match(requireRegexp)) {
+        console.log(mainFile);
       console.log(chalk.red('No require found in main file'))
       return mainFileData
     }
-    function parseFileModules (file, hash) {
-      let mainPath = path.dirname(file)
-      console.log(file)
-      const inputData = fs.readFileSync(file, 'utf8')
+    function parseFileModules (module, hash) {
+      let mainPath = path.dirname(module)
+      console.log(chalk.yellow('Parsing module: ' + path.relative(mainPath, module)))
+      const inputData = fs.readFileSync(module, 'utf8')
       packages.set(hash, true)
       const outputData = inputData
         .replace(requireRegexp, (_, match) => {
