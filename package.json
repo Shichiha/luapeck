@@ -5,10 +5,9 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "test:build": "node bin/luapeck -p test/test.lua",
+    "test:build": "node bin/luapeck -p test/ -v",
     "test:start": "lua test/packed.lua",
-    "test": "npm run test:build && npm run test:start",
-    "prep": "node bin/luapeck -p ./test"
+    "test": "npm run test:build && npm run test:start"
   },
   "bin": {
     "luapeck": "bin/luapeck"

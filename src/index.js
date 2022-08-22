@@ -72,7 +72,8 @@ function pack (args) {
   let hasConfig = fs.existsSync(path.join(pathArg, 'luapeck.config.json'))
   if (!hasConfig && !isFile) {
     log('red', 'No config file found at ' + pathArg)
-    return // TODO: create config file}
+    initProject(args)
+    return
   }
   log('green', 'Found config file! Packing...')
   let config = JSON.parse(

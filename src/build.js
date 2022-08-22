@@ -30,7 +30,7 @@ function build (mainFile) {
           var reqPath = path.resolve(mainPath, match)
           var reqHash = md5Hex(reqPath)
           !packages.has(reqHash) ? parseFileModules(reqPath, reqHash) : null
-          return `require('${reqHash.substr(0, 8)}')` // replace file path with hash
+          return `require('${reqHash.substr(0, 8)}')`
         })
         .replace(/\n/g, '\n\t')
       packages.set(hash, outputData)
@@ -40,7 +40,7 @@ function build (mainFile) {
     packages.forEach((data, hash) => {
       outputData += loadTemplate(hash, data)
     })
-    outputData += `require('${mainHash.substr(0, 8)}')\n` // require the main file
+    outputData += `require('${mainHash.substr(0, 8)}')\n`
     return outputData
   }
   return parseFiles()
