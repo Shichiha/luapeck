@@ -2,7 +2,7 @@ const fs = require('fs-extra')
 const path = require('path')
 const md5Hex = require('md5-hex')
 
-const load_moduleTemplate = fs.readFileSync(__dirname+'/load_module.lua', 'utf8')
+const requireTemplate = fs.readFileSync(__dirname+'/require.lua', 'utf8')
 const loadTemplate = (hash, data, filePath) => {
   data = data.replace(/\n/g, '\n\t')
   return `proxy_package.packages['${hash.substr(0,8)}'] = function()\n\t${data}\nend\n`
@@ -10,7 +10,7 @@ const loadTemplate = (hash, data, filePath) => {
 
 module.exports.build = build
 
-const load_moduleRegexp = /load_module\(?(?:"|')([^"']+)(?:"|')\)?/g
+const requireRegexp = /require\(?(?:"|')([^"']+)(?:"|')\)?/g
 
 function build(mainFile) {
   mainFile = path.resolve(mainFile)
@@ -30,7 +30,7 @@ function build(mainFile) {
 
     packages.set(hash, true) // reserve package
 
-    const outputData = inputData.replace(load_moduleRegexp, (_, match) => {
+    const outputData = inputData.replace(requireRegexp, (_, match) => {
       var reqPath = path.resolve(mainPath,match)
       var reqHash = md5Hex(reqPath)
 
@@ -38,7 +38,7 @@ function build(mainFile) {
         parseFile(reqPath, reqHash)
       }
 
-      return `load_module('${reqHash.substr(0,8)}')` // replace file path with hash
+      return `require('${reqHash.substr(0,8)}')` // replace file path with hash
     })
 
     packages.set(hash, outputData)
@@ -46,13 +46,13 @@ function build(mainFile) {
   
   parseFile(mainFile, mainHash)
 
-  var outputData = load_moduleTemplate
+  var outputData = requireTemplate
 
   packages.forEach((data, hash) => {
     outputData += loadTemplate(hash, data)
   })
 
-  outputData += `load_module('${mainHash.substr(0,8)}')\n` // load_module the main file
+  outputData += `require('${mainHash.substr(0,8)}')\n` // require the main file
 
   return outputData
 }

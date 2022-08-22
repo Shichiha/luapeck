@@ -4,7 +4,9 @@
   "description": "Packaging multiple lua files into one file",
   "main": "src/index.js",
   "scripts": {
-    "test": "node bin/luapeck -o test/packed.lua build test/test.lua"
+    "test:build": "node bin/luapeck -o test/packed.lua build test/test.lua",
+    "test:start": "lua test/packed.lua",
+    "test": "npm run test:build && npm run test:start"
   },
   "bin": {
     "luapeck": "bin/luapeck"

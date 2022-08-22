@@ -3,7 +3,7 @@ local proxy_package = {
   packages = {}
 }
 
-function load_module(h)
+function require(h)
   if (proxy_package.loaded[h]) then
     return proxy_package.loaded[h]
   elseif (proxy_package.packages[h]) then
