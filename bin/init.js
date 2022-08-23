@@ -21,14 +21,14 @@ export function initProject (args) {
       {
         type: 'list',
         name: 'mainFile',
-        message: chalk.greenBright('Which file do you want to pack?'),
+        message: log('greenbright','Which file do you want to pack?'),
         choices: fs.readdirSync(executePath),
         default: 'main.lua'
       },
       {
         type: 'input',
         name: 'output',
-        message: chalk.greenBright('Output file name'),
+        message: log('greenbright','Output file name'),
         default: 'packed.lua'
       }
     ])
