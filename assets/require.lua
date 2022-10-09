@@ -11,10 +11,3 @@ function require(h)
         return proxy_package.loaded[h]
     end
 end
-
-proxy_package.packages['c36e8531'] = function()
-	local lib = {add = function(a, b) return a + b end}
-	return lib
-	
-end
-require('c36e8531')

@@ -1,20 +1,18 @@
 {
   "name": "luapeck",
-  "version": "4.1.0",
-  "description": "Packages multiple lua files into one file",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test:build": "node bin/luapeck -p test/ -v",
-    "test:start": "lua test/packed.lua",
-    "test": "npm run test:build && npm run test:start"
+    "test": "jest"
   },
-  "bin": {
-    "luapeck": "bin/luapeck"
-  },
-  "author": "Shichiha",
+  "license": "ISC",
   "dependencies": {
-    "chalk": "^5.0.1",
-    "inquirer": "^9.1.0",
-    "md5-hex": "^4.0.0"
+    "hasha": "^5.2.2",
+    "typescript": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.1.2",
+    "jest": "^29.1.2"
   }
 }

@@ -1,8 +1,11 @@
-import chalk from 'chalk'
-export function log (color, message) {
-  if (process.argv.indexOf('-v') > -1) console.log(chalk[color](message))
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.logError = exports.log = void 0;
+function log(...args) {
+    console.log(...args);
 }
-export function logError(message) {
-  console.log(chalk.red(message))
-  process.exit(1)
+exports.log = log;
+function logError(...args) {
+    log('\x1b[31m', ...args, '\x1b[0m');
 }
+exports.logError = logError;
