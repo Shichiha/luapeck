@@ -1,2 +1,2 @@
-local a=require("hi")
+local a=require("asd.hi")
 print(a.."World!")

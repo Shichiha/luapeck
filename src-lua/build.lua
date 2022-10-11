@@ -16,7 +16,12 @@ end
 local requireTemplate = fs.readFileSync(path.absolute("../assets/require.lua"))
 local function parseModule(module, hash, modules)
     if not fs.existsSync(module) then
-        module = module .. '.lua'
+        module = module:gsub('%../', 'a1234567890'):gsub('%.', '\\'):gsub('%a1234567890', '../') .. '.lua'
+        print(module)
+    end
+
+    if not fs.existsSync(module) then
+        return "bruh file doesnt exist?"
     end
     local moduleFolder = path.dirname(module)
 
