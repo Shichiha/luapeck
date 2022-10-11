@@ -13,7 +13,7 @@ local function getRequires(fileData)
     return requires
 end
 
-local requireTemplate = fs.readFileSync(path.absolute("../assets/require.lua"))
+local requireTemplate = fs.readFileSync(path.absolute("../templates/require.lua"))
 local function parseModule(module, hash, modules)
     if not fs.existsSync(module) then
         module = module:gsub('%../', 'a1234567890')
