@@ -5,7 +5,7 @@ function fs.readFileSync(fp)
   if f == nil then return "file is nil" end
   local content = f:read("*all")
   f:close()
-  return content
+  return tostring(content)
 end
 
 function fs.existsSync(fp)

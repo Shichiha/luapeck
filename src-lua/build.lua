@@ -1,5 +1,5 @@
-local fs = require('library.fs')
-local path = require('library.path')
+local fs = require("library.fs")
+local path = require("library.path")
 
 local function getIdentifier(file)
     return file:gsub('/', '_'):gsub('\\', '_'):gsub('%.', '_')
@@ -7,7 +7,7 @@ end
 
 local function getRequires(fileData)
     local requires = {}
-    for require in fileData:gmatch('require%("(.-)"%)') do
+    for require in fileData:gmatch('require%s*%(%s*[\'"](.-)[\'"]%s*%)') do
         table.insert(requires, require)
     end
     return requires
@@ -16,18 +16,21 @@ end
 local requireTemplate = fs.readFileSync(path.absolute("../assets/require.lua"))
 local function parseModule(module, hash, modules)
     if not fs.existsSync(module) then
-        module = module:gsub('%../', 'a1234567890'):gsub('%.', '\\'):gsub('%a1234567890', '../') .. '.lua'
-        print(module)
+        module = module:gsub('%../', 'a1234567890')
+        module = module:gsub('%.', '\\')
+        module = module:gsub('%a1234567890', '../')
+        
+        module = module .. '.lua'
     end
 
     if not fs.existsSync(module) then
-        return "bruh file doesnt exist?"
+        error ("file " .. module .." doesnt exist")
     end
     local moduleFolder = path.dirname(module)
 
     local moduleData = fs.readFileSync(module)
 
-    local requires = getRequires(moduleData)
+    local requires = getRequires(moduleData) or {}
     local outputData = moduleData
     for _, require in pairs(requires) do
         local reqPath = path.resolve(moduleFolder, require)
@@ -35,7 +38,7 @@ local function parseModule(module, hash, modules)
         if not modules[reqHash] then
             parseModule(reqPath, reqHash, modules)
         end
-        outputData = outputData:gsub('require%("' .. require .. '"%)', 'require(\'' .. reqHash .. '\')')
+        outputData = outputData:gsub('require%s*%(%s*"' .. require .. '"%s*%)', 'require(\'' .. reqHash .. '\')')
     end
 
     modules[hash] = outputData:gsub('\n', '\n\t')
