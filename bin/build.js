@@ -5,13 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const hasha_1 = __importDefault(require("hasha"));
 const helper_js_1 = require("./helper.js");
 const requireTemplate = fs_1.default.readFileSync(path_1.default.resolve(__dirname, "..", "assets", "require.lua"), "utf-8");
 const loadTemplate = (hash, data) => {
-    return `proxy_package.packages['${hash.substr(0, 8)}'] = function()\n\t${data}\nend\n`;
+    return `pmanager.packages['${hash.substr(0, 8)}'] = function()\n\t${data}\nend\n`;
 };
 const requireRegexp = /require\(?(?:"|')([^"']+)(?:"|')\)?/g;
+function getIdentifier(file) {
+    return path_1.default.parse(file).name;
+}
 /**
  * If the file doesn't have a require statement, return false
  * @param {string} file - The file to be checked
@@ -21,7 +23,7 @@ function noRequires(file) {
     file = path_1.default.resolve(file);
     let fileData = fs_1.default.readFileSync(file).toString();
     if (!fileData.match(requireRegexp)) {
-        (0, helper_js_1.log)("[INFO]\t", "No require found in module... returning file");
+        (0, helper_js_1.logInfo)("[INFO]\t", "No require found in module " + path_1.default.parse(file).name + " ... returning file");
         return false;
     }
 }
@@ -37,6 +39,7 @@ function Indent(input) {
  * It takes a module, a hash, and a map of modules, and if the module has no requires, it returns the
  * module, otherwise it parses the module, and replaces the requires with the hash of the required
  * module.
+ * This function is a recursive function
  * @param {string} module - The path to the module you want to parse
  * @param {string} hash - The hash of the module
  * @param modules - Map<any, any>
@@ -44,7 +47,7 @@ function Indent(input) {
  */
 function parseModule(module, hash, modules) {
     let moduleFolder = path_1.default.dirname(module);
-    (0, helper_js_1.log)("[INFO]\t", "Parsing module: " + path_1.default.relative(moduleFolder, module));
+    (0, helper_js_1.logInfo)("[INFO]\t", "Parsing module: " + path_1.default.relative(moduleFolder, module));
     if (noRequires(module))
         return module;
     if (!fs_1.default.existsSync(module))
@@ -54,7 +57,7 @@ function parseModule(module, hash, modules) {
     let outputData = moduleData
         .replace(requireRegexp, (_, match) => {
         let reqPath = path_1.default.resolve(moduleFolder, match);
-        let reqHash = (0, hasha_1.default)(reqPath);
+        let reqHash = getIdentifier(reqPath);
         !modules.has(reqHash) ? parseModule(reqPath, reqHash, modules) : null;
         return `require('${reqHash.slice(0, 8)}')`;
     });
@@ -71,7 +74,7 @@ function parseModule(module, hash, modules) {
  */
 function Pack(filePath) {
     filePath = path_1.default.resolve(filePath);
-    let mainHash = (0, hasha_1.default)(filePath);
+    let mainHash = getIdentifier(filePath);
     if (noRequires(filePath))
         return filePath;
     let modules = new Map();

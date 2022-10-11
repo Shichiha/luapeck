@@ -1,1 +1,1 @@
-return "Hello, "
+return"Hello, "

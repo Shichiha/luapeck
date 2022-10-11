@@ -1,2 +1,2 @@
-local H = require("hi.lua")
-print(H .. "World!")
+local a=require("hi")
+print(a.."World!")
