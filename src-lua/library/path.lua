@@ -10,7 +10,7 @@ local function split(str, sep)
 end
 
 function path.parse(fp)
-  local dir, file = fp:match("(.*)/(.*)")
+  local dir, file = fp:match("(.*)/(.*)") or "", fp
   return {
     dir = dir,
     file = file,
@@ -62,7 +62,7 @@ function path.relative(from, to)
     table.insert(up_dirs, "..")
   end
   local down_dirs = to_dir_remainder_parts
-  local fp = table.concat(up_dirs, "/") .. "/" .. table.concat(down_dirs, "/") .. "/" .. to_file
+  local fp = table.concat(up_dirs, "/") .. "/" .. table.concat(down_dirs, "/") .. "/" .. to_file:gsub("/", "\\")
   return fp
 end
 

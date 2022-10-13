@@ -2,6 +2,10 @@ local fs = require("library.fs")
 local path = require("library.path")
 
 local function getIdentifier(file)
+    if file == "" then
+        error("supplied getIdentifier with empty string.")
+    else
+    end
     return file:gsub('/', '_'):gsub('\\', '_'):gsub('%.', '_')
 end
 
@@ -10,38 +14,44 @@ local function getRequires(fileData)
     for require in fileData:gmatch('require%s*%(%s*[\'"](.-)[\'"]%s*%)') do
         table.insert(requires, require)
     end
+
     return requires
 end
 
-local requireTemplate = fs.readFileSync(path.absolute("../templates/require.lua"))
-local function parseModule(module, hash, modules)
+local requireTemplate = "local pmanager={loaded={},packages={}}function require(b)local c=pmanager.loaded[b]if(c)then return c end;c=pmanager.packages[b]if(c)then pmanager.loaded[b]=c()return pmanager.loaded[b]end end;local _G=_G;"
+local function parseModule(module, hash, modules, baseDir)
+    local leftDir = nil;
+    if baseDir == "" then leftDir = "" else leftDir = baseDir.."/" end
+    if not baseDir then baseDir = "" end
+    local modulePath = module:gsub('%../', 'outdir_buffer')
     if not fs.existsSync(module) then
-        module = module:gsub('%../', 'a1234567890')
-        module = module:gsub('%.', '\\')
-        module = module:gsub('%a1234567890', '../')
-        
-        module = module .. '.lua'
-    end
+        modulePath = modulePath:gsub('%outdir_buffer', '../')
+        modulePath = modulePath:gsub('%.', '/')
+        modulePath = modulePath .. '.lua'
 
-    if not fs.existsSync(module) then
-        error ("file " .. module .." doesnt exist")
+        modulePath = leftDir..modulePath
+        if fs.existsSync(modulePath) then
+            module = modulePath
+        else
+            error(modulePath.." don't exist")
+        end
     end
-    local moduleFolder = path.dirname(module)
-
+    if not fs.existsSync(module) and module:find('%.') then
+        error("file '" .. module .. "' doesnt exist")
+    end
     local moduleData = fs.readFileSync(module)
 
-    local requires = getRequires(moduleData) or {}
+    local requires = getRequires(moduleData)
     local outputData = moduleData
-    for _, require in pairs(requires) do
-        local reqPath = path.resolve(moduleFolder, require)
-        local reqHash = getIdentifier(reqPath)
+    for k, v in pairs(requires) do
+        local reqHash = getIdentifier(v)
         if not modules[reqHash] then
-            parseModule(reqPath, reqHash, modules)
+            parseModule(v, reqHash, modules, baseDir)
         end
-        outputData = outputData:gsub('require%s*%(%s*"' .. require .. '"%s*%)', 'require(\'' .. reqHash .. '\')')
+        outputData = outputData:gsub('require%s*%(%s*"' .. v .. '"%s*%)', 'require(\'' .. reqHash .. '\')')
     end
 
-    modules[hash] = outputData:gsub('\n', '\n\t')
+    modules[hash] = outputData:gsub('\n', '\n\t'):gsub('_G', '_G_' .. hash)
 end
 
 local function loadTemplate(hash, data)
@@ -54,7 +64,7 @@ local function Pack(filePath)
 
     local modules = {}
 
-    parseModule(filePath, mainHash, modules)
+    parseModule(filePath, mainHash, modules, path.parse(filePath).dir)
     local outputData = requireTemplate
 
     for hash, data in pairs(modules) do
