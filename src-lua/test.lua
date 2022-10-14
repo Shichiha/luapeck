@@ -1,4 +1,3 @@
 local Pack = require("build")
 
--- print(Pack('../testFiles/main.lua'))
-print(Pack("test"))
+print(Pack('../testFiles/main.lua'))

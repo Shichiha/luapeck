@@ -2,10 +2,7 @@ local fs = require("library.fs")
 local path = require("library.path")
 
 local function getIdentifier(file)
-    if file == "" then
-        error("supplied getIdentifier with empty string.")
-    else
-    end
+    if file == "" then error("supplied getIdentifier with empty string.") end
     return file:gsub('/', '_'):gsub('\\', '_'):gsub('%.', '_')
 end
 
@@ -18,22 +15,20 @@ local function getRequires(fileData)
     return requires
 end
 
-local requireTemplate = "local pmanager={loaded={},packages={}}function prequire(b)local c=pmanager.loaded[b]if(c)then return c end;c=pmanager.packages[b]if(c)then pmanager.loaded[b]=c()return pmanager.loaded[b]end end;local _G=_G;"
+local requireTemplate =
+    "local pmanager={loaded={},packages={}}local function prequire(b)local c=pmanager.loaded[b]if(c)then return c end;c=pmanager.packages[b]if(c)then pmanager.loaded[b]=c()return pmanager.loaded[b]end end;\n"
 local function parseModule(module, hash, modules, baseDir)
     local leftDir = nil;
-    if baseDir == "" then leftDir = "" else leftDir = baseDir.."/" end
-    if not baseDir then baseDir = "" end
+    leftDir = baseDir == "" and "" or baseDir .. "/"
     local modulePath = module:gsub('%../', 'outdir_buffer')
     if not fs.existsSync(module) then
-        modulePath = modulePath:gsub('%outdir_buffer', '../')
-        modulePath = modulePath:gsub('%.', '/')
-        modulePath = modulePath .. '.lua'
+        modulePath = modulePath:gsub('%outdir_buffer', '../'):gsub('%.', '/') .. '.lua'
 
-        modulePath = leftDir..modulePath
+        modulePath = leftDir .. modulePath
         if fs.existsSync(modulePath) then
             module = modulePath
         else
-            error(modulePath.." don't exist")
+            error(modulePath .. " don't exist")
         end
     end
     if not fs.existsSync(module) and module:find('%.') then
@@ -51,7 +46,7 @@ local function parseModule(module, hash, modules, baseDir)
         outputData = outputData:gsub('require%s*%(%s*"' .. v .. '"%s*%)', 'prequire(\'' .. reqHash .. '\')')
     end
 
-    modules[hash] = outputData:gsub('\n', '\n\t'):gsub('_G', '_G_' .. hash)
+    modules[hash] = outputData:gsub('\n', '\n\t')
 end
 
 local function loadTemplate(hash, data)
