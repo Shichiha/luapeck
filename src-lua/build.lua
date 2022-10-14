@@ -18,7 +18,7 @@ local function getRequires(fileData)
     return requires
 end
 
-local requireTemplate = "local pmanager={loaded={},packages={}}function require(b)local c=pmanager.loaded[b]if(c)then return c end;c=pmanager.packages[b]if(c)then pmanager.loaded[b]=c()return pmanager.loaded[b]end end;local _G=_G;"
+local requireTemplate = "local pmanager={loaded={},packages={}}function prequire(b)local c=pmanager.loaded[b]if(c)then return c end;c=pmanager.packages[b]if(c)then pmanager.loaded[b]=c()return pmanager.loaded[b]end end;local _G=_G;"
 local function parseModule(module, hash, modules, baseDir)
     local leftDir = nil;
     if baseDir == "" then leftDir = "" else leftDir = baseDir.."/" end
@@ -48,7 +48,7 @@ local function parseModule(module, hash, modules, baseDir)
         if not modules[reqHash] then
             parseModule(v, reqHash, modules, baseDir)
         end
-        outputData = outputData:gsub('require%s*%(%s*"' .. v .. '"%s*%)', 'require(\'' .. reqHash .. '\')')
+        outputData = outputData:gsub('require%s*%(%s*"' .. v .. '"%s*%)', 'prequire(\'' .. reqHash .. '\')')
     end
 
     modules[hash] = outputData:gsub('\n', '\n\t'):gsub('_G', '_G_' .. hash)
@@ -71,7 +71,7 @@ local function Pack(filePath)
         outputData = outputData .. loadTemplate(hash, data)
     end
 
-    outputData = outputData .. 'require(\'' .. mainHash .. '\')\n'
+    outputData = outputData .. 'prequire(\'' .. mainHash .. '\')\n'
     return outputData
 end
 
