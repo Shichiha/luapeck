@@ -1,4 +1,4 @@
--- simple class implementation by shichihachi 😼
+-- simple class implementation by shichihachi
 local function class(base, init)
     local c = {}
     if not init and type(base) == 'function' then
